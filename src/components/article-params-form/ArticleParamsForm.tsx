@@ -1,6 +1,12 @@
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
-import { useRef, useState } from 'react';
+import {
+	SyntheticEvent,
+	KeyboardEvent,
+	// useEffect,
+	useRef,
+	useState,
+} from 'react';
 
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
@@ -19,7 +25,9 @@ import {
 import { Text } from 'src/ui/text';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Separator } from 'src/ui/separator';
-import { useOutsideClickClose } from 'src/ui/select/hooks/useOutsideClickClose';
+
+import { useOutsideClickClose } from './hooks/useOutsideClickClose';
+import { useEnterSubmit } from './hooks/useEnterSubmit';
 
 type ArticleParamsFormProps = {
 	settings: ArticleStateType;
@@ -28,21 +36,20 @@ type ArticleParamsFormProps = {
 };
 
 export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
-	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 	const [settings, setSettings] = useState(props.settings);
-	const setParam = props.setParam;
-	const resetParam = props.resetParam;
 	const rootRef = useRef<HTMLDivElement>(null);
 
+	const handleClickOpen = () => {
+		setIsMenuOpen(isMenuOpen === false ? true : false);
+	};
+
 	useOutsideClickClose({
-		isOpen,
+		isOpen: isMenuOpen,
 		rootRef,
-		onChange: setIsOpen,
+		onChange: handleClickOpen,
 	});
 
-	const handleClickOpen = () => {
-		setIsOpen(isOpen === false ? true : false);
-	};
 	const setFonts = (option: OptionType) => {
 		setSettings({
 			...settings,
@@ -74,24 +81,27 @@ export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 		});
 	};
 
-	const resetSettings = () => {
-		resetParam();
-		setSettings(defaultArticleState);
-	};
-
-	const applySettings = (settings: ArticleStateType) => {
-		setParam(settings);
-	};
+	useEnterSubmit({
+		isOpen: isMenuOpen,
+		setSettings: props.setParam,
+		optionRef: rootRef,
+		option: settings,
+	});
 
 	return (
 		<>
-			<ArrowButton isOpen={isOpen} onClick={handleClickOpen} />
+			<ArrowButton isOpen={isMenuOpen} onClick={handleClickOpen} />
 			<div ref={rootRef}>
 				<aside
 					className={clsx(styles.container, {
-						[styles.container_open]: isOpen,
+						[styles.container_open]: isMenuOpen,
 					})}>
-					<form className={styles.form}>
+					<form
+						className={styles.form}
+						onSubmit={(evt: SyntheticEvent) => {
+							evt.preventDefault();
+							props.setParam(settings);
+						}}>
 						<Text size={31} weight={800} uppercase>
 							задайте параметры
 						</Text>
@@ -99,7 +109,9 @@ export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 							selected={settings.fontFamilyOption}
 							options={fontFamilyOptions}
 							title='Шрифт'
-							onChange={setFonts}
+							onChange={(option) => {
+								setFonts(option);
+							}}
 						/>
 						<RadioGroup
 							name='Размер шрифта'
@@ -134,15 +146,16 @@ export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 								htmlType='reset'
 								type='clear'
 								onClick={() => {
-									resetSettings();
+									props.resetParam();
+									setSettings(defaultArticleState);
 								}}
 							/>
 							<Button
 								title='Применить'
-								htmlType='button'
+								htmlType='submit'
 								type='apply'
 								onClick={() => {
-									applySettings(settings);
+									props.setParam(settings);
 								}}
 							/>
 						</div>

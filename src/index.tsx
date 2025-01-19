@@ -1,16 +1,13 @@
 import { createRoot } from 'react-dom/client';
-import { StrictMode, CSSProperties, useState } from 'react';
-import clsx from 'clsx';
+import { StrictMode } from 'react';
 
-import { Article } from './components/article/Article';
-import { ArticleParamsForm } from './components/article-params-form/ArticleParamsForm';
 import {
 	ArticleStateType,
 	defaultArticleState,
 } from './constants/articleProps';
 
 import './styles/index.scss';
-import styles from './styles/index.module.scss';
+import { App } from './components/app';
 
 const domNode = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(domNode);
@@ -29,48 +26,61 @@ const settingsApp = settingsAppPersonal
 	? settingsAppPersonal
 	: defaultArticleState;
 
-type AppProps = {
-	settings: ArticleStateType;
-	defaultSettings: ArticleStateType;
-};
+function setSettingsLocalStorage(option: ArticleStateType) {
+	setItem('settings', option);
+}
 
-const App = (props: AppProps) => {
-	const [settingsApp, setSettingsApp] = useState(props.settings);
+function resetSettingsLocalStorage() {
+	setItem('settings', defaultArticleState);
+}
 
-	const setSettings = (settings: ArticleStateType) => {
-		setSettingsApp(settings);
-		setItem<ArticleStateType>('settings', settings);
-	};
+// type AppProps = {
+// 	settings: ArticleStateType;
+// 	defaultSettings: ArticleStateType;
+// };
 
-	const resetSettings = () => {
-		setSettingsApp(props.defaultSettings);
-		setItem<ArticleStateType>('settings', props.defaultSettings);
-	};
+// const App = (props: AppProps) => {
+// 	const [settingsApp, setSettingsApp] = useState(props.settings);
 
-	return (
-		<main
-			className={clsx(styles.main)}
-			style={
-				{
-					'--font-family': settingsApp.fontFamilyOption.value,
-					'--font-size': settingsApp.fontSizeOption.value,
-					'--font-color': settingsApp.fontColor.value,
-					'--container-width': settingsApp.contentWidth.value,
-					'--bg-color': settingsApp.backgroundColor.value,
-				} as CSSProperties
-			}>
-			<ArticleParamsForm
-				settings={settingsApp}
-				setParam={setSettings}
-				resetParam={resetSettings}
-			/>
-			<Article />
-		</main>
-	);
-};
+// 	const setSettings = (settings: ArticleStateType) => {
+// 		setSettingsApp(settings);
+// 		setItem<ArticleStateType>('settings', settings);
+// 	};
+
+// 	const resetSettings = () => {
+// 		setSettingsApp(props.defaultSettings);
+// 		setItem<ArticleStateType>('settings', props.defaultSettings);
+// 	};
+
+// 	return (
+// 		<main
+// 			className={styles.main}
+// 			style={
+// 				{
+// 					'--font-family': settingsApp.fontFamilyOption.value,
+// 					'--font-size': settingsApp.fontSizeOption.value,
+// 					'--font-color': settingsApp.fontColor.value,
+// 					'--container-width': settingsApp.contentWidth.value,
+// 					'--bg-color': settingsApp.backgroundColor.value,
+// 				} as CSSProperties
+// 			}>
+// 			<ArticleParamsForm
+// 				settings={settingsApp}
+// 				setParam={setSettings}
+// 				resetParam={resetSettings}
+// 			/>
+// 			<Article />
+// 		</main>
+// 	);
+// };
 
 root.render(
 	<StrictMode>
-		<App settings={settingsApp} defaultSettings={defaultArticleState} />
+		<App
+			settings={settingsApp}
+			defaultSettings={defaultArticleState}
+			setSettingsLocalStorage={setSettingsLocalStorage}
+			resetSettingsLocalStorage={resetSettingsLocalStorage}
+		/>
 	</StrictMode>
 );
