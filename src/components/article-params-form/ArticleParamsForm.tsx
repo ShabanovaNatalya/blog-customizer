@@ -1,12 +1,6 @@
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
-import {
-	SyntheticEvent,
-	KeyboardEvent,
-	// useEffect,
-	useRef,
-	useState,
-} from 'react';
+import { SyntheticEvent, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
@@ -50,34 +44,10 @@ export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 		onChange: handleClickOpen,
 	});
 
-	const setFonts = (option: OptionType) => {
+	const setParam = (param: string, option: OptionType) => {
 		setSettings({
 			...settings,
-			fontFamilyOption: option,
-		});
-	};
-	const setFontSize = (option: OptionType) => {
-		setSettings({
-			...settings,
-			fontSizeOption: option,
-		});
-	};
-	const setColor = (option: OptionType) => {
-		setSettings({
-			...settings,
-			fontColor: option,
-		});
-	};
-	const setBackgroundColor = (option: OptionType) => {
-		setSettings({
-			...settings,
-			backgroundColor: option,
-		});
-	};
-	const setWidth = (option: OptionType) => {
-		setSettings({
-			...settings,
-			contentWidth: option,
+			[param]: option,
 		});
 	};
 
@@ -110,34 +80,34 @@ export const ArticleParamsForm = (props: ArticleParamsFormProps) => {
 							options={fontFamilyOptions}
 							title='Шрифт'
 							onChange={(option) => {
-								setFonts(option);
+								setParam('fontFamilyOption', option);
 							}}
 						/>
 						<RadioGroup
 							name='Размер шрифта'
 							options={fontSizeOptions}
 							selected={settings.fontSizeOption}
-							onChange={setFontSize}
+							onChange={(option) => setParam('fontSizeOption', option)}
 							title='Размер шрифта'
 						/>
 						<Select
 							selected={settings.fontColor}
 							options={fontColors}
 							title='Цвет шрифта'
-							onChange={setColor}
+							onChange={(option) => setParam('fontColor', option)}
 						/>
 						<Separator />
 						<Select
 							selected={settings.backgroundColor}
 							options={backgroundColors}
 							title='Цвет фона'
-							onChange={setBackgroundColor}
+							onChange={(option) => setParam('backgroundColor', option)}
 						/>
 						<Select
 							selected={settings.contentWidth}
 							options={contentWidthArr}
 							title='Ширина контента'
-							onChange={setWidth}
+							onChange={(option) => setParam('contentWidth', option)}
 						/>
 
 						<div className={styles.bottomContainer}>
